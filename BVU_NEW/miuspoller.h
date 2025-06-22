@@ -65,6 +65,9 @@ private:
 
     int takePortFronMain;
 
+    void setupLogging();
+    void closeLogging();
+
 };
 
 

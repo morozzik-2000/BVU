@@ -35,7 +35,7 @@ private:
 
     void setupQuaternionTable();
     void setupVSKTable();
-    void setupLogging();
+    // void setupLogging();
     void logData(const QString &message);
 };
 
