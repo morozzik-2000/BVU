@@ -17,7 +17,7 @@ ResultsViewer::ResultsViewer(QWidget *parent) : QTabWidget(parent) {
     this->setWindowTitle("ОПЕРАТОР->Обработанные данные МИУС");
     this->setMinimumSize(1030, 180);
 
-    setupLogging();
+
 
     quaternionTable = new QTableWidget(this);
     vskTable = new QTableWidget(this);
@@ -122,13 +122,13 @@ void ResultsViewer::addQuaternionData(int tripleNumber, int addr1, int addr2, in
     quaternionTable->setItem(row, 6, new QTableWidgetItem(QString::number(q2)));
     quaternionTable->setItem(row, 7, new QTableWidgetItem(QString::number(q3)));
 
-    logData(QString("Тройка %1: ДУС %2, %3, %4: q0=%5, q1=%6, q2=%7, q3=%8")
-                .arg(tripleNumber)
-                .arg(addr1).arg(addr2).arg(addr3)
-                .arg(q0)
-                .arg(q1)
-                .arg(q2)
-                .arg(q3));
+    // logData(QString("Тройка %1: ДУС %2, %3, %4: q0=%5, q1=%6, q2=%7, q3=%8")
+    //             .arg(tripleNumber)
+    //             .arg(addr1).arg(addr2).arg(addr3)
+    //             .arg(q0)
+    //             .arg(q1)
+    //             .arg(q2)
+    //             .arg(q3));
 }
 
 void ResultsViewer::addVSKData(int tripleNumber, int addr1, int addr2, int addr3,
@@ -155,12 +155,12 @@ void ResultsViewer::addVSKData(int tripleNumber, int addr1, int addr2, int addr3
     vskTable->setItem(row, 4, new QTableWidgetItem(QString::number(vskZ)));
     vskTable->setItem(row, 5, new QTableWidgetItem(QString::number(freqKhz)));
 
-    logData(QString("Тройка %1: ДУС %2, %3, %4: wx=%5, wy=%6, wz=%7, f=%7")
-                .arg(tripleNumber)
-                .arg(addr1).arg(addr2).arg(addr3)
-                .arg(vskX)
-                .arg(vskY)
-                .arg(vskZ));
+    // logData(QString("Тройка %1: ДУС %2, %3, %4: wx=%5, wy=%6, wz=%7, f=%7")
+    //             .arg(tripleNumber)
+    //             .arg(addr1).arg(addr2).arg(addr3)
+    //             .arg(vskX)
+    //             .arg(vskY)
+    //             .arg(vskZ));
 }
 
 void ResultsViewer::clearAllData() {
@@ -168,43 +168,43 @@ void ResultsViewer::clearAllData() {
     quaternionTable->setRowCount(0);
     vskTable->setRowCount(0);
 }
-void ResultsViewer::setupLogging() {
+// void ResultsViewer::setupLogging() {
 
-    QString logFilePath = LoggingUtils::createLogFilePath("Tablica_obrabotannih_dannih_Log");
+//     QString logFilePath = LoggingUtils::createLogFilePath("Tablica_obrabotannih_dannih_Log");
 
-    logFile.setFileName(logFilePath);
-    if (logFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        logStream.setDevice(&logFile);
-        logStream.setCodec("UTF-8");
-        logStream << "=== Start log  ResultViewer===" << Qt::endl;
-        logStream << "Format of log:" << Qt::endl;
-        logStream << "[date-time] Type of write: data" << Qt::endl;
-        logStream << "================================" << Qt::endl << Qt::endl;
-    } else {
-        qWarning() << "ERROR to open log file!:" << logFilePath;
-    }
-}
+//     logFile.setFileName(logFilePath);
+//     if (logFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+//         logStream.setDevice(&logFile);
+//         logStream.setCodec("UTF-8");
+//         logStream << "=== Start log  ResultViewer===" << Qt::endl;
+//         logStream << "Format of log:" << Qt::endl;
+//         logStream << "[date-time] Type of write: data" << Qt::endl;
+//         logStream << "================================" << Qt::endl << Qt::endl;
+//     } else {
+//         qWarning() << "ERROR to open log file!:" << logFilePath;
+//     }
+// }
 
-void ResultsViewer::logData(const QString &message) {
+// void ResultsViewer::logData(const QString &message) {
 
-    if (!logFile.isOpen()) return;
+//     if (!logFile.isOpen()) return;
 
-    QDateTime currentTime = QDateTime::currentDateTime();
+//     QDateTime currentTime = QDateTime::currentDateTime();
 
-    if (lastLogTime.isValid() && lastLogTime.msecsTo(currentTime) > 1000) {
-        logStream << Qt::endl;
-    }
+//     if (lastLogTime.isValid() && lastLogTime.msecsTo(currentTime) > 1000) {
+//         logStream << Qt::endl;
+//     }
 
-    logStream << "[" << currentTime.toString("yyyy-MM-dd HH:mm:ss.zzz") << "] "
-              << message << Qt::endl;
+//     logStream << "[" << currentTime.toString("yyyy-MM-dd HH:mm:ss.zzz") << "] "
+//               << message << Qt::endl;
 
-    lastLogTime = currentTime;
-}
+//     lastLogTime = currentTime;
+// }
 
 ResultsViewer::~ResultsViewer() {
 
-    if (logFile.isOpen()) {
-        logStream << "\n=== Логирование завершено ===" << Qt::endl;
-        logFile.close();
-    }
+    // if (logFile.isOpen()) {
+    //     logStream << "\n=== Логирование завершено ===" << Qt::endl;
+    //     logFile.close();
+    // }
 }

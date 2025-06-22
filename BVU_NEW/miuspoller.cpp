@@ -1,15 +1,12 @@
 #include "miuspoller.h"
 #include <QDebug>
 #include <QThread>
+#include "loggingutils.h"
 
 MiusPoller::MiusPoller(pultUdpSend *pult, uint8_t interfaceId, QObject *parent)
     : QObject(parent), m_pult(pult), m_interfaceId(interfaceId) {
 
     connect(&timer, &QTimer::timeout, this, &MiusPoller::onTimeout);
-    logFile.setFileName("mius_log.txt");
-    if (logFile.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
-        logStream.setDevice(&logFile);
-    }
     qDebug() << "[MiusPoller] thread info:"
              << "object thread =" << this->thread()
              << ", current thread =" << QThread::currentThread();
@@ -17,7 +14,28 @@ MiusPoller::MiusPoller(pultUdpSend *pult, uint8_t interfaceId, QObject *parent)
     connect(m_pult, &pultUdpSend::responseReceived, this, &MiusPoller::onResponseReceived);
     qDebug() << "port" << m_interfaceId;
 }
+void MiusPoller::setupLogging() {
+    QString logFilePath = LoggingUtils::createLogFilePath("Tablica_obrabotannih_dannih_Log");
 
+    logFile.setFileName(logFilePath);
+    if (logFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        logStream.setDevice(&logFile);
+        logStream.setCodec("UTF-8");
+        logStream << "=== Start log  ResultViewer===" << Qt::endl;
+        logStream << "Format of log:" << Qt::endl;
+        logStream << "[date-time] Type of write: data" << Qt::endl;
+        logStream << "================================" << Qt::endl << Qt::endl;
+    } else {
+        qWarning() << "ERROR to open log file!:" << logFilePath;
+    }
+}
+
+void MiusPoller::closeLogging() {
+    if (logFile.isOpen()) {
+        logStream << "\n=== Log end ===" << Qt::endl;
+        logFile.close();
+    }
+}
 void MiusPoller::setTripeInfo(int tripleNumberRec, int addr1Rec, int addr2Rec, int addr3Rec) {
 
     tripleNumber = tripleNumberRec;
@@ -35,7 +53,7 @@ void MiusPoller::setPort(int takePortFronMain) { // 20.06
     this->takePortFronMain = takePortFronMain;  // 20.06
 }
 void MiusPoller::start(int intervalMs, int durationMs) {
-
+    setupLogging();  // ✅ открыть лог при старте
     elapsedMs = 0;
     totalDurationMs = durationMs;
     commandCount = 0; // команды
@@ -56,6 +74,7 @@ void MiusPoller::stop() {
     writeLog(summary);
     emit log("🛑 Опрос МиУСа остановлен");
     emit log(summary);
+    closeLogging();  // ✅ закрыть лог по завершении
 
 }
 void MiusPoller::onTimeout() {
@@ -73,20 +92,7 @@ void MiusPoller::onTimeout() {
        emit log("Ошибка");
    }
 }
-//void MiusPoller::onTimeout() {
 
-//   elapsedMs += timer.interval();
-//   if (elapsedMs >= totalDurationMs) {
-//       stop();
-//       return;
-//   }
-//   commandCount++;
-//   PultErrors errors;
-//   QByteArray cmd = buildCommand();
-//   if (!m_pult->sendData(m_interfaceId, cmd, this, errors)) {
-//       emit log("ОШИБКА");
-//   }
-//}
 
 QByteArray MiusPoller::buildCommand() {
 
@@ -135,10 +141,8 @@ void MiusPoller::processResponse(const QByteArray &packet) {
 }
 
 void MiusPoller::writeLog(const QString &line) {
-
     if (logFile.isOpen()) {
         logStream << line << "\n";
         logStream.flush();
     }
-
 }
